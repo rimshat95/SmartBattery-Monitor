@@ -1,0 +1,24 @@
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports: ["8086:8086"]
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=virtual-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=plant-bucket
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3000:3000"]
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  influxdb_data:
+  grafana_data:
+      
