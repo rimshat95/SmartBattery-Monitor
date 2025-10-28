@@ -1,0 +1,133 @@
+[
+    {
+        "id": "bc74d753836ea88f",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3933c4eb4f5baba0",
+        "type": "mqtt-broker",
+        "name": "Mosquitto Broker",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "7ec9168da469477a",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB 2.x Battery",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "8a3dd416668987c4",
+        "type": "mqtt in",
+        "z": "bc74d753836ea88f",
+        "name": "",
+        "topic": "battery/status",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "3933c4eb4f5baba0",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 180,
+        "wires": [
+            [
+                "103fdff51833fd6f"
+            ]
+        ]
+    },
+    {
+        "id": "103fdff51833fd6f",
+        "type": "function",
+        "z": "bc74d753836ea88f",
+        "name": "format for InfluxDB",
+        "func": "// This function expects msg.payload from MQTT to be a JSON string or object.\n// Example MQTT payload: {\"battery_percentage\": 50.12, \"timestamp\": \"2025-10-28 03:00:00\"}\n\nlet parsedPayload = msg.payload;\n\n// If the payload is a string, try to parse it as JSON\nif (typeof msg.payload === 'string') {\n    try {\n        parsedPayload = JSON.parse(msg.payload);\n    } catch (e) {\n        node.error(\"Function Node: Failed to parse JSON payload: \" + e.message, msg);\n        return null; // Stop flow if parsing fails\n    }\n}\n\nlet batteryPercentage = parsedPayload.battery_percentage;\n\n// Validate if batteryPercentage is a valid number\nif (typeof batteryPercentage !== 'number' || isNaN(batteryPercentage)) {\n    node.warn(\"Function Node: Invalid battery_percentage received: \" + batteryPercentage, msg);\n    // Optionally, you could set a default value or return null to stop the flow\n    return null; // Stop flow if data is invalid\n}\n\n// Prepare the data for InfluxDB 2.x output node\nmsg.payload = {\n    data: {\n        battery_percentage: batteryPercentage // This is the field value\n    },\n    measurement: \"mqtt_consumer\", // This matches your Grafana query assumption\n    tags: {\n        topic: \"battery/status\" // Add topic as a tag for filtering in Grafana\n    }\n};\n// InfluxDB will usually add its own timestamp if not provided, which is often fine.\n\nreturn msg; // CRITICAL: This line must be present to pass the message to the next nodes\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 1,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [
+                "feb6f89feae9ca69",
+                "a7a9ec0faa9afea6"
+            ]
+        ]
+    },
+    {
+        "id": "feb6f89feae9ca69",
+        "type": "influxdb out",
+        "z": "bc74d753836ea88f",
+        "influxdb": "7ec9168da469477a",
+        "name": "",
+        "measurement": "mqtt_consumer",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "MyBatteryOrg",
+        "bucket": "battery_data",
+        "x": 840,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "a7a9ec0faa9afea6",
+        "type": "debug",
+        "z": "bc74d753836ea88f",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 60,
+        "wires": []
+    }
+]
