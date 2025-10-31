@@ -77,8 +77,6 @@ from(bucket: "battery_data")
   |> yield(name: "battery_pct")
 ```
 
-> Vill du ha en **Table** med senaste värde: använd `|> last()` och `pivot` för snygg kolumn.
-
 ## 8) Valfri Node‑RED Dashboard (snabb vy)
 
 * Installera `node-red-dashboard` → lägg **`ui_gauge`** (0–100 %)
@@ -86,11 +84,6 @@ from(bucket: "battery_data")
   Som en bränslemätare rakt i webbläsaren: `http://localhost:1881/ui`.
 
 ## 9) Felsökning (träffsäkert för den här PoC:en)
-
-**401 Unauthorized (InfluxDB):**
-
-* Token saknar *Write* till bucket, fel org/bucket‑namn, eller fel URL (ska vara `http://influxdb:8086` inne i docker‑nätet).
-* Testa med `curl`‑skrivning (snabb sanity check) och läs Influx‑loggarna.
 
 **Influx‑nod "unknown" / egenskaper "undefined":**
 
