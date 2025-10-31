@@ -1,4 +1,4 @@
-# Batteriövervakning – Minimal PoC (baserad på din simulator)
+# Batteriövervakning – Minimal PoC 
 
 ## 1) Syfte
 
@@ -9,7 +9,7 @@ Detta dokument beskriver ett Proof of Concept (PoC) för ett virtuellt IoT-syste
 
 ## 2) Arkitektur
 
-* **Simulator (din `simulator.py`)** – publicerar batteriprocentsats var 5:e sekund.
+* **Simulator ** – publicerar batteriprocentsats var 5:e sekund.
 * **Mosquitto (MQTT)** – tar emot på `battery/status`.
 * **Node‑RED** – prenumererar på MQTT, mappar värde → skriver till InfluxDB.
 * **InfluxDB 2.x** – lagrar tidsserien för `battery_percentage`.
